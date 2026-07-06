@@ -42,7 +42,8 @@ discrete logic. No microcontroller touches a pixel between command and scanout.
    boundaries, so a full-screen clear is a single 20480-pulse burst (~7 ms).
 5. Host drops `FILL_EN` → bus returns to the scan side.
 
-## why this goes vroom vroom fast: a CPU writing through shift registers pays 24+ SPI bits + latch +
+## why this goes vroom vroom fast:
+a CPU writing through shift registers pays 24+ SPI bits + latch +
 strobe per pixel (~4 µs). The fill engine pays that **once per run**, then 1 clock
 per pixel. Measured speedup on full-screen clears: **>10×** (the demo firmware
 benchmarks it live).
