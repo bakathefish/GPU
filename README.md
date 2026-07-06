@@ -1,9 +1,9 @@
-#goobeywoobey gpu- A discrete-logic graphics processor 
+### goobeywoobey GPU- a doohickey engineering project  
 
-**160×128 pixels · 8-bit color (RGB332) · ~3 Mpix/s hardware fill · double-buffered VRAM · built from ~19 jellybean 74HC chips + 62256 SRAM on a 30×40 cm perfboard.**
+**~3 Mpix/s hardware fill · double-buffered VRAM · built from jellybean 74HC chips + 62256 SRAM on a 30×40 cm perfboard.**
 
-Host ESP32 issues draw commands. Output ESP32 scans the frame out. Everything in between which includes but is not limited to
-address generation, write engine, VRAM, bus arbitration, double buffering is done by 
+Host ESP32 issues draw commands. The output ESP32 scans the frame out. Everything in between, which includes but is not limited to
+address generation, write engine, VRAM, bus arbitration, double buffering, is done by 
 discrete logic. No microcontroller touches a pixel between command and scanout.
 
 ```
@@ -25,16 +25,7 @@ discrete logic. No microcontroller touches a pixel between command and scanout.
              └─────────────────────────────────────────────────────────┘
 ```
 
-# How does it work
-
- ##.
- 0# Memory map
-- Screen: **160 wide × 128 tall** (matches the ST7735 in landscape 1:1), 1 byte per
-  pixel, RGB332 (3 bits red, 3 green, 2 blue). Address = `y*160 + x`, the hardware just uses a linear counter. One frame =
-  20480 bytes; each 32 KB 62256 holds a frame with 12 KB spare.
-- Address bus `AB0..AB14`, data bus `DB0..DB7`, shared by fill and scan sides,
-  tri-state arbitrated by the 74HC541 pairs. Only one side owns the bus at a time
-  (`FILL_EN` selects).
+### how does it work?
 
 ### Fill engine (the main part ig)
 1. Host shifts 24 bits over SPI into the 595 chain: `[PIXEL][ADDR_LO][ADDR_HI]`,
@@ -51,7 +42,7 @@ discrete logic. No microcontroller touches a pixel between command and scanout.
    boundaries, so a full-screen clear is a single 20480-pulse burst (~7 ms).
 5. Host drops `FILL_EN` → bus returns to the scan side.
 
-Why this goes vroom vroom fast: a CPU writing through shift registers pays 24+ SPI bits + latch +
+### Why this goes vroom vroom fast: a CPU writing through shift registers pays 24+ SPI bits + latch +
 strobe per pixel (~4 µs). The fill engine pays that **once per run**, then 1 clock
 per pixel. Measured speedup on full-screen clears: **>10×** (the demo firmware
 benchmarks it live).
@@ -59,18 +50,15 @@ benchmarks it live).
 ### Scan-out thingy
 - The HC393 ripple chain generates sequential addresses 0..20479. ESP32 #2 pulses
   `SCAN_RST`, then clocks `SCANCLK` (~1.4 MHz) and reads the SRAM data bus directly
-  on 8 GPIOs which is one full byte per clock, ~15 ms per frame (~65 fps capture).
-- ESP32 #2 displays every frame **1:1 on the 1.8" ST7735 TFT** (embedded
-  zero-dependency driver, landscape 160×128 = the whole panel) **and** runs a WiFi
-  access point (`FALLOUT-GPU`) serving the same frame as an 8-bit BMP 
-
+  on 8 GPIOs which is one full byte per clock.
+  
 ### Arbitration / vsync (2 wires thingy between the ESP32s)
 - `BUSY` (host → scanout): high while the host owns the GPU bus. Scanout never
   starts a frame while BUSY.
 - `FRAME_ACT` (scanout → host): high during a frame capture. Host waits for it to
   drop before drawing. Result: no torn frames even in single-buffer mode.
 
-### Double buffering (stage 2)
+### double buffering (stage 2)
 Both SRAMs share the address/data bus. A 74HC74 flip-flop (`SEL`) steers `/WE` to
 the back buffer and `/OE` to the front buffer through four OR gates ('32):
 
@@ -84,14 +72,13 @@ the back buffer and `/OE` to the front buffer through four OR gates ('32):
 Host toggles SEL with one `SWAP` pulse between frames. Draw time is hidden: the
 viewer always sees a complete frame while the next one is drawn.
 
-## Specs for pure flex
+## cool number tested by maths that should theorteically work that go vroom
 
 | Spec | Value |
 |---|---|
 | Resolution / color | 160×128, 8 bpp RGB332 |
 | VRAM | 2× 32 KB SRAM, double buffered (20 KB/frame + 12 KB spare each) |
 | Fill rate | ~3 Mpix/s burst (1 pixel/clock), tunable to 5 MHz |
-| Random pixel writes | ~220 k/s (24-bit command + 1 clock) |
 | Scan-out | 8-bit parallel, ~65 fps capture, ST7735 TFT + WiFi browser |
 | Logic | 19 ICs: 595/163/393/541/32/04/74 + 62256 |
 | Clocks | Fully static design|
