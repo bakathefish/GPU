@@ -58,6 +58,12 @@ benchmarks it live).
 - `FRAME_ACT` (scanout → host): high during a frame capture. Host waits for it to
   drop before drawing. Result: no torn frames even in single-buffer mode.
 
+### instructions
+
+1. buy all the components
+2. follow the instructions from netlist.md and instructions-buildplan.md
+3. pray and hope
+
 ### double buffering (stage 2)
 Both SRAMs share the address/data bus. A 74HC74 flip-flop (`SEL`) steers `/WE` to
 the back buffer and `/OE` to the front buffer through four OR gates ('32):
