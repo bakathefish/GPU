@@ -64,6 +64,11 @@ benchmarks it live).
 2. follow the instructions from netlist.md and instructions-buildplan.md
 3. pray and hope
 
+## schematic
+<img width="1268" height="899" alt="image" src="https://github.com/user-attachments/assets/4ece058a-f195-4f64-a04d-09c55b7c9b51" />
+
+
+
 ### double buffering (stage 2)
 Both SRAMs share the address/data bus. A 74HC74 flip-flop (`SEL`) steers `/WE` to
 the back buffer and `/OE` to the front buffer through four OR gates ('32):
