@@ -1,4 +1,4 @@
-### goobeywoobey GPU- a doohickey engineering project  
+## goobeywoobey GPU- a doohickey engineering project  
 
 **~3 Mpix/s hardware fill · double-buffered VRAM · built from jellybean 74HC chips + 62256 SRAM on a 30×40 cm perfboard.**
 
@@ -25,7 +25,7 @@ discrete logic. No microcontroller touches a pixel between command and scanout.
              └─────────────────────────────────────────────────────────┘
 ```
 
-### how does it work?
+## how does it work?
 
 ### Fill engine (the main part ig)
 1. Host shifts 24 bits over SPI into the 595 chain: `[PIXEL][ADDR_LO][ADDR_HI]`,
@@ -42,7 +42,7 @@ discrete logic. No microcontroller touches a pixel between command and scanout.
    boundaries, so a full-screen clear is a single 20480-pulse burst (~7 ms).
 5. Host drops `FILL_EN` → bus returns to the scan side.
 
-### Why this goes vroom vroom fast: a CPU writing through shift registers pays 24+ SPI bits + latch +
+## why this goes vroom vroom fast: a CPU writing through shift registers pays 24+ SPI bits + latch +
 strobe per pixel (~4 µs). The fill engine pays that **once per run**, then 1 clock
 per pixel. Measured speedup on full-screen clears: **>10×** (the demo firmware
 benchmarks it live).
@@ -57,6 +57,17 @@ benchmarks it live).
   starts a frame while BUSY.
 - `FRAME_ACT` (scanout → host): high during a frame capture. Host waits for it to
   drop before drawing. Result: no torn frames even in single-buffer mode.
+
+## instructions
+
+1. buy all the components
+2. follow the instructions from netlist.md and instructions-buildplan.md
+3. pray and hope
+
+## schematic
+<img width="1268" height="899" alt="image" src="https://github.com/user-attachments/assets/4ece058a-f195-4f64-a04d-09c55b7c9b51" />
+
+
 
 ### double buffering (stage 2)
 Both SRAMs share the address/data bus. A 74HC74 flip-flop (`SEL`) steers `/WE` to
