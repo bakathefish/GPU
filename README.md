@@ -42,7 +42,8 @@ discrete logic. No microcontroller touches a pixel between command and scanout.
    boundaries, so a full-screen clear is a single 20480-pulse burst (~7 ms).
 5. Host drops `FILL_EN` → bus returns to the scan side.
 
-## why this goes vroom vroom fast: a CPU writing through shift registers pays 24+ SPI bits + latch +
+## why this goes vroom vroom fast:
+a CPU writing through shift registers pays 24+ SPI bits + latch +
 strobe per pixel (~4 µs). The fill engine pays that **once per run**, then 1 clock
 per pixel. Measured speedup on full-screen clears: **>10×** (the demo firmware
 benchmarks it live).
@@ -98,4 +99,21 @@ viewer always sees a complete frame while the next one is drawn.
 ## Pitch framing
 - The ESP32s are *peripherals*: one is the "driver/command generator", one is the
   "monitor cable". The GPU itself does address generation, write sequencing, VRAM,
-  bus arbitration, double-buffer steering is a 74-series logic you can point at.
+  bus arbitration, buffer steering is a 74-series logic you can point at.
+
+
+## Oscilloscope reading
+Here are readings from the oscilliscope to prove it works: 
+
+<img width="2250" height="4000" alt="20260707_054652" src="https://github.com/user-attachments/assets/cfef66be-5388-4e96-9450-91216cefb98b" />
+<img width="2250" height="4000" alt="20260707_054640" src="https://github.com/user-attachments/assets/0b13394f-7320-41ce-84ee-c2d0b5b980fa" />
+<img width="2250" height="4000" alt="20260707_054627" src="https://github.com/user-attachments/assets/366bcb85-1b9b-4a01-8471-8a13a4fc3b6b" />
+
+
+
+## Zine
+[zine.pdf](https://github.com/user-attachments/files/29722720/zine.pdf)
+
+
+
+
